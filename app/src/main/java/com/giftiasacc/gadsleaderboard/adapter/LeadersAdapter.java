@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.giftiasacc.gadsleaderboard.R;
 import com.giftiasacc.gadsleaderboard.model.LearningLeader;
 
@@ -36,6 +37,9 @@ public class LeadersAdapter extends RecyclerView.Adapter<LeadersAdapter.LeadersH
         holder.name.setText(leader.getName());
         holder.hours.setText(leader.getHours()+" leaning hours, ");
         holder.country.setText(leader.getCountry());
+        Glide.with(context)
+                .load(leader.getBadgeUrl())
+                .into(holder.badge);
     }
 
     @Override

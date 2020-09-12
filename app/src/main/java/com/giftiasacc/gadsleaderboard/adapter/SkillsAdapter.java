@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.giftiasacc.gadsleaderboard.R;
 import com.giftiasacc.gadsleaderboard.model.LearningLeader;
 import com.giftiasacc.gadsleaderboard.model.SkillIQLeader;
@@ -37,6 +38,9 @@ public class SkillsAdapter extends RecyclerView.Adapter<SkillsAdapter.SkillsHold
         holder.name.setText(leader.getName());
         holder.score.setText(leader.getScore()+" Skill IQ Score, ");
         holder.country.setText(leader.getCountry());
+        Glide.with(context)
+                .load(leader.getBadgeUrl())
+                .into(holder.badge);
     }
 
     @Override

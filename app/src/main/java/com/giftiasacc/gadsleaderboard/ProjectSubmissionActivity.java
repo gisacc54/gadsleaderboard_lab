@@ -1,7 +1,10 @@
 package com.giftiasacc.gadsleaderboard;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -45,14 +48,14 @@ public class ProjectSubmissionActivity extends AppCompatActivity implements View
     @Override
     public void onClick(View view) {
         if (view == submitBtn){
-            submitProject();
+            createConfirmAlertDialog();
         }
         else if (view == backBtn){
             onBackPressed();
         }
     }
 
-    private void submitProject(){
+    private void validateData(){
         String firstName = firstNameInput.getText().toString();
         String lastName = lastNameInput.getText().toString();
         String email = emailInput.getText().toString();
@@ -61,26 +64,76 @@ public class ProjectSubmissionActivity extends AppCompatActivity implements View
             Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show();
         }
         else {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://docs.google.com/forms/d/e/")
-                    .build();
-            PostInterface postInterface = retrofit.create(PostInterface.class);
-
-            postInterface.submitProject(firstName,lastName,email,githubProjectUrl).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (!response.isSuccessful())
-                        Toast.makeText(ProjectSubmissionActivity.this, "Fail to submit"+response.code(), Toast.LENGTH_SHORT).show();
-                    else
-                        Toast.makeText(ProjectSubmissionActivity.this, "Submit message: "+response.toString()+" "+githubProjectUrl, Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Toast.makeText(ProjectSubmissionActivity.this, "Fail", Toast.LENGTH_SHORT).show();
-                }
-            });
+            submitProject(firstName,lastName,email,githubProjectUrl);
         }
+    }
+    private void submitProject(String firstName,String lastName,String email,String githubProjectUrl){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://docs.google.com/forms/d/e/")
+                .build();
+        PostInterface postInterface = retrofit.create(PostInterface.class);
+
+        postInterface.submitProject(firstName,lastName,email,githubProjectUrl).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful())
+                    createSuccessAlertDialog();
+                else
+                    createErrorAlertDialog();
+                System.out.println(response.toString());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                createErrorAlertDialog();
+            }
+        });
+    }
+
+    public void createConfirmAlertDialog(){
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        builder.create();
+        View layout = getLayoutInflater().inflate(R.layout.confirm_alert_dialog,null);
+        ImageView close = layout.findViewById(R.id.confirm_close);
+        Button okBtn = layout.findViewById(R.id.confirm_btn);
+        builder.setView(layout);
+        AlertDialog dialog= builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+                validateData();
+            }
+        });
+    }
+
+    public void createSuccessAlertDialog(){
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        builder.create();
+        View layout = getLayoutInflater().inflate(R.layout.success_alert_dialog,null);
+        builder.setView(layout);
+        AlertDialog dialog= builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+    }
+    public void createErrorAlertDialog(){
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        builder.create();
+        View layout = getLayoutInflater().inflate(R.layout.error_alert_dialog,null);
+        builder.setView(layout);
+        AlertDialog dialog= builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 
 }
